@@ -18,14 +18,32 @@ class KNNModel:
 
     # TODO: Implement this method!
     def predict(self, X_pred):
-        # The code in this method should be removed and replaced! We included it
-        # just so that the distribution code is runnable and produces a
-        # (currently meaningless) visualization.
-        preds = []
-        for x in X_pred:
-            z = np.cos(x ** 2).sum()
-            preds.append(1 + np.sign(z) * (np.abs(z) > 0.3))
-        return np.array(preds)
+
+        predictions = []
+
+        for i in range(X_pred.shape[0]):
+
+            distance = []
+
+            for j in range(self.X.shape[0]):
+
+                r = ((X_pred[i,0] - self.X[j,0])/3)**2 + (X_pred[i,1] - self.X[j,1])**2
+
+                distance.append(r)
+
+            NN = np.argsort(distance)[:self.K]
+
+            one_hot_y = np.zeros(shape = (len(X), 3))
+            for i in range(len(self.y)):
+                one_hot_y[i, self.y[i]] = 1
+
+            y_NN = one_hot_y[NN,:]
+
+            y_class_pred = np.argmax(np.sum(y_NN, axis = 0))
+
+            predictions.append(y_class_pred)
+
+        return np.array(predictions)
 
     # In KNN, "fitting" can be as simple as storing the data, so this has been written for you
     # If you'd like to add some preprocessing here without changing the inputs, feel free,

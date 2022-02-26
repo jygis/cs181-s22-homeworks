@@ -21,11 +21,18 @@ def basis1(x):
 
 # TODO: Implement this
 def basis2(x):
-    return None
+    return np.stack([np.ones(len(x)),
+                     x,
+                    [i ** 2 for i in x]], axis=1)
 
 # TODO: Implement this
 def basis3(x):
-    return None
+    return np.stack([np.ones(len(x)),
+                     x,
+                    [i ** 2 for i in x],
+                    [i ** 3 for i in x],
+                    [i ** 4 for i in x],
+                    [i ** 5 for i in x]], axis=1)
 
 class LogisticRegressor:
     def __init__(self, eta, runs):
@@ -45,9 +52,18 @@ class LogisticRegressor:
         else:
             self.W = np.random.rand(x.shape[1], 1)
 
+        for i in range(self.runs):
+
+            dEw = np.mean(x * (sigmoid(np.dot(x, self.W)) - y), axis = 0).reshape(x.shape[1],1)
+
+            self.W -= self.eta * dEw
+
+
+
+
     # TODO: Fix this method!
     def predict(self, x):
-        return np.dot(x, self.W)
+        return sigmoid(np.dot(x, self.W))
 
 # Function to visualize prediction lines
 # Takes as input last_x, last_y, [list of models], basis function, title
@@ -104,7 +120,7 @@ def generate_data(dataset_size):
     return np.array(x), np.array(y).reshape(-1, 1)
 
 if __name__ == "__main__":
-    
+
     # DO NOT CHANGE THE SEED!
     np.random.seed(1738)
     eta = 0.001
@@ -122,4 +138,24 @@ if __name__ == "__main__":
         model.fit(x_transformed, y)
         all_models.append(model)
     # Here x and y contain last dataset:
-    visualize_prediction_lines(x, y, all_models, basis1, "exampleplot")
+    visualize_prediction_lines(x, y, all_models, basis1, "basis1")
+
+    all_models = []
+    for _ in range(10):
+        x, y = generate_data(N)
+        x_transformed = basis2(x)
+        model = LogisticRegressor(eta=eta, runs=runs)
+        model.fit(x_transformed, y)
+        all_models.append(model)
+    # Here x and y contain last dataset:
+    visualize_prediction_lines(x, y, all_models, basis2, "basis2")
+
+    all_models = []
+    for _ in range(10):
+        x, y = generate_data(N)
+        x_transformed = basis3(x)
+        model = LogisticRegressor(eta=eta, runs=runs)
+        model.fit(x_transformed, y)
+        all_models.append(model)
+    # Here x and y contain last dataset:
+    visualize_prediction_lines(x, y, all_models, basis3, "basis3")
